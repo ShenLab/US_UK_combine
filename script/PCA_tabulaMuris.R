@@ -1,9 +1,9 @@
-
+setwd("yourfolder/")
 ## PCA 
 
 cats<-c("known risk genes","candidate risk genes","random genes", "other genes")
 pcols<-c("red","dodgerblue",rgb(0,0,0,0.4),rgb(220/255,220/255,220/255,0.5)) #"sienna2"
-allg<-read.table("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/MouseHumanIDmapper.txt",
+allg<-read.table("data/MouseHumanIDmapper.txt",
                  header = 1,comment.char = "",sep="\t",stringsAsFactors = F)
 
 knowngenes<-"SOX17|BMPR2|TBX4|KCNK3|ATP13A3|GDF2|AQP1$|KLK1$|GGCX|ACVRL1|^KDR$|^ENG$|EIF2AK4|SMAD4|^CAV1$|NOTCH1$|SMAD4|SMAD9"
@@ -12,18 +12,13 @@ confirmgenes<-"SOX17|BMPR2|TBX4|KCNK3|ACVRL1|^ENG$|EIF2AK4|^CAV1$|NOTCH1$|SMAD4|
 
 #risks<-"col6a5|fbln2|pdgfd|hn1l|jpt2|^kdr$" #chd9|mrrf|ccdc28A|vps51|mmp10|chd9|CHKB|myf5|irak4|npffr2|myo5b|ipo4|hn1l|jpt2"
 risks<-"fbln2|pdgfd|^kdr$" #chd9|mrrf|ccdc28A|vps51|mmp10|chd9|CHKB|myf5|irak4|npffr2|myo5b|ipo4|hn1l|jpt2"
-denovos<-read.csv("~/Dropbox (CGC)/PAH/US_UK_SPARK/de novo data/ALL_PAH_denovos.csv",header=1,stringsAsFactors = F,comment.char = "",check.names = F)
-denovogenes<-denovos$GeneName[grep("^SYN",denovos$Mutation_Type)]
-denovo_mouse<-allg$MouseGene[which(allg$HumanGene%in%denovogenes)]
-#cands<-read.table("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/candidates.txt",header = F,comment.char = "",stringsAsFactors = F,fill = T)
-#cands<-cands$V1
 
 all_negatives<-allg[intersect(which(!allg$HumanGene%in%c(knowngenes,risks)==T),
                               grep(paste(knowngenes,risks,sep="|"),allg$HumanGene,ignore.case = T,invert = T)),"MouseGene"]
 
 
 
-dat_all<-read.csv("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/FACS_tissues_genes.summary.csv",
+dat_all<-read.csv("data/FACS_tissues_genes.summary.csv",
               header=1,stringsAsFactors = F,comment.char = "",check.names = F)
 dat_all<-dat_all[which(dat_all$gene%in%allg$MouseGene),]
 #dat_all<-dat_all[grep(".y$",names(dat_all),invert = T),]
@@ -32,8 +27,7 @@ dat_all<-dat_all[which(dat_all$gene%in%allg$MouseGene),]
 #dat_all<-dat_all[which(ss>0),]
 
 all_negatives<-all_negatives[which(all_negatives%in%dat_all$gene)]
-negatives<- read.table("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/negative_selected.csv",header=1,stringsAsFactors = F,comment.char = "") #sample(all_negatives,100,replace = F)
-negatives<-negatives$gene
+negatives<-sample(all_negatives,100,replace = F)
 includes<-unique(c(which(dat_all$gene%in%c(negatives)),grep(risks,dat_all$gene,ignore.case = T),
                    grep(knowngenes,dat_all$gene,ignore.case = T)))
 indexs<-intersect(grep("heart|lung|aorta",names(dat_all),ignore.case = T) ,
@@ -63,7 +57,7 @@ colnames(matri)<-cells
 matri<-matri[c(grep(confirmgenes,dat$gene,ignore.case = T),
            grep(risks,dat$gene,ignore.case = T),which(dat$gene%in%c(negatives))),]
 #colnames(matri)<-gsub("rate_| cell","",colnames(matri))
-pdf("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/Heatmap_no_jpt2_col6A5_2.pdf",width=10,height=10)
+pdf("result/Heatmap.pdf",width=10,height=10)
 par(mar=c(2,5,15,2))
 library(RColorBrewer)
 
@@ -91,10 +85,10 @@ if(mat$PC2[which(mat$gene=="Kdr")] <0){
 }
 mat$rank<-1:dim(mat)[1]
 mat<-merge(mat,dat_all[,c(1,indexs)],by.x="gene",by.y="gene",all.x=T)
-write.csv(mat,"~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/PC2_pergene_no_jpt2_col6A5.csv")
+write.csv(mat,"result/PC2_pergene.csv")
 #cols<-sample(colors(),size = 15,replace = F)
 cex.tex=1.3
-pdf("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/PCA_projection_no_jpt2_col6A5.pdf",width=7,height=7)
+pdf("result/PCA_projection.pdf",width=7,height=7)
 
 ## PCA
 i=1;j=1;
@@ -116,9 +110,6 @@ points(pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),j],pcs$x[grep(confirmge
 points(pcs$x[grep(risks,dat$gene,ignore.case = T),j],pcs$x[grep(risks,dat$gene,ignore.case = T),i+1],
        col=pcols[2],
        pch=20,cex=1.2)
-# points(pcs$x[which(dat$gene%in%denovo_mouse),j],pcs$x[which(dat$gene%in%denovo_mouse),i+1],
-#        col="orange",
-#        pch=20,cex=1)
 
 ids<-intersect(grep(confirmgenes,dat$gene,ignore.case = T),which(pcs$x[,j] >0))
 text(pcs$x[ids,j],
@@ -146,7 +137,7 @@ dev.off()
 
 ## loadings
 
-pdf("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/PCA_loadings_no_jpt2_col6A5.pdf")
+pdf("result/PCA_loadings.pdf")
 i=2
 par(mar=c(2.5,4,1,1))
 plot(1:dim(pcs$rotation)[1],pcs$rotation[,i],
@@ -195,265 +186,3 @@ legend("topleft",legend = cats[1:2],
 
 dev.off()
 
-pdf("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/PCA_all_no_jpt2_col6A5.pdf")
- for(i in 1:10){
- plot(1:dim(pcs$rotation)[1],pcs$rotation[,i],xlim=c(0,dim(pcs$rotation)[1]),ylim=c(-0.7,0.7),ylab=paste("PC",i),xlab="cells")
- text(1:dim(pcs$rotation)[1],pcs$rotation[,i], cells,cex=0.75,pos=3,srt=45,pch=20)
- }
- 
-par(oma=c(1,1,1,1))
-for(i in 1:5){
-plot(density(pcs$x[,i]),main="",xlab=paste("PC",i),col=pcols[4])
-lines(density(pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),i]),col=pcols[1])
-lines(density(pcs$x[grep(risks,dat$gene,ignore.case = T),i]),col=pcols[2])
-#lines(density(pcs$x[which(dat$gene%in%denovo_mouse),i]),col="orange")
-lines(density(pcs$x[which(dat$gene%in%negatives),i]),col=pcols[3])
-legend("topright",legend = cats,col=pcols, pch=rep(20,4),bty='n')
-}
-i=1
-for(i in c(0:3)){
-  j=2
-  plot(proj[,j],proj[,i+1],xlab=paste("PC",j,": ",format(pcs$sdev[j],trim = 2,digits = 2),sep=""),
-       ylab=paste("PC",i+1,": ",format(pcs$sdev[i+1],trim = 2,digits = 2),sep=""),col=pcols[4],main="FACS-4tissues",
-       pch=20,cex=1)
-  
-  points(pcs$x[,j],pcs$x[,i+1],xlab=paste("PC",j,sep=""),ylab=paste("PC",i+1,sep=""),col=pcols[3],main="FACS-4tissues",
-       pch=20,cex=1)
-  points(pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),j],pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),
-                                i+1],
-         col=pcols[1],
-         pch=20,cex=1)
-  points(pcs$x[grep(risks,dat$gene,ignore.case = T),j],pcs$x[grep(risks,dat$gene,ignore.case = T),i+1],
-         col=pcols[2],
-         pch=20,cex=1)
- # points(pcs$x[which(dat$gene%in%denovo_mouse),j],pcs$x[which(dat$gene%in%denovo_mouse),
-  #                                                                  i+1],
- #        col="orange",
-  #       pch=20,cex=1)
-  
-  # text(pcs$x[which(dat$gene%in%denovo_mouse),j],
-  #      pcs$x[which(dat$gene%in%denovo_mouse),i+1],col="orange",
-  #      dat$gene[which(dat$gene%in%denovo_mouse)],cex = 1,pos=1)
-  
-  text(pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),j],
-       pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),i+1],col=pcols[1],
-       dat$gene[grep(confirmgenes,dat$gene,ignore.case = T)],cex = 1,pos=1)
-
-  text(pcs$x[grep(risks,dat$gene,ignore.case = T),j],pcs$x[grep(risks,dat$gene,ignore.case = T),i+1],
-       col=pcols[2],
-       dat$gene[grep(risks,dat$gene,ignore.case = T)],cex = 1,pos=1)
-#  legend("topright",legend = c("known","candidate","de novo","negative"),fill=c("red","blue","orange","black"),bty='n')
-  legend("topright",legend =cats,col= pcols,pch=20,bty='n')
-}
-dev.off()
-library("elasticnet")
-y<-rep(0,dim(pcs$x)[1])
-y[grep(confirmgenes,dat$gene,ignore.case = T)]<-1
-ob<-enet(x=pcs$x,y=y,lambda = 0.5)
-pdf("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/Enet_no_jpt2_col6A5.pdf")
-plot(ob,main="PCs",las=2)
-write.csv(attr(ob$beta.pure,"scaled:scale")*ob$beta.pure,file="~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/Enet_pcs.result.csv")
-
-fits<-predict.enet(ob,rbind(pcs$x,proj),mode="step",s=10,type="fit")
-
-ob<-enet(x=as.matrix(dat[,indexs]),y=y,lambda = 0.5)
-plot(ob,main="rawdata",las=2)
-write.csv(attr(ob$beta.pure,"scaled:scale")*ob$beta.pure,file="~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/Enet_rawdata.result.csv")
-fits<-predict.enet(ob,as.matrix(dat_all[,indexs]),mode="step",s=10,type="fit")
-
-
-allgenes<-c(dat$gene,dat_project$gene)
-outfit<- data.frame(gene=allgenes,predictor=fits$fit,stringsAsFactors = F)
-outfit$known=0;
-outfit[grep(confirmgenes,outfit$gene,ignore.case = T),"known"]<-"known"
-
-outfit[grep(risks,outfit$gene,ignore.case = T),"known"]<-"candidate"
-outfit[which(outfit$gene%in%denovo_mouse),"known"]<-"denovo"
-outfit<-outfit[order(outfit$predictor),]
-outfit$rank<-1:dim(outfit)[1]
-write.csv(outfit,file="~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/predict_genes.csv")
-plot(fits$fit)
-plot(density(fits$fit))
-keyg="fbln2|bmpr2|sox17|^kdr$|pdgfd|gdf2|tbx4|acvrl1|col6a5|hn1l|smad9|notch1"
-plot(density(fits$fit))
-abline(v=fits$fit[grep(keyg,allgenes,ignore.case = T)],col="gray",lty=2)
-text(fits$fit[grep(keyg,allgenes,ignore.case = T)],seq(1,50,by = 5),allgenes[grep(keyg,allgenes,ignore.case = T)],col="gray")
-dev.off()
-
-
-
-test<-function(){
-  
-  pdf("/Users/nazhu/Dropbox (CGC)/PAH/US_UK/result/geneExpression/TabulaMutis.pdf") #("~/terra/Resources/GeneExpression/single_cell/TabulaMuris/TabulaMuris_PCA.pdf")
-  knowngenes<-"SOX17|BMPR2|TBX4|KCNK3|ATP13A3|GDF2|AQP1$|KLK1$|GGCX|ACVRL1|KDR|^ENG$|EIF2AK4|SMAD4|^CAV1$|NOTCH1$|SMAD4|SMAD9|Fbln2"
-  risks<-"col6a5|fbln2|pdgfd|chd9|hn1l|jpt2" #|mrrf|ccdc28A|vps51|mmp10|chd9|CHKB|myf5|irak4|npffr2|myo5b|ipo4|hn1l|jpt2"
-  negatives<-
-    dat1<-read.csv("~/terra/Resources/GeneExpression/single_cell/TabulaMuris/Droplet_tissues_genes.summary.csv",
-                   header=1,stringsAsFactors = F,comment.char = "",check.names = F)
-  dat1<-dat1[which(dat1$gene%in%allg$V4),]
-  ss<-unlist(lapply(1:dim(dat1)[1],FUN=function(i){sum(dat1[i,2:dim(dat1)[2]])}))
-  dat1<-dat1[which(ss>0),]
-  indexs<-2:dim(dat1)[2]
-  indexs<-grep("heart|lung|Trachea|aorta",names(dat1),ignore.case = T)
-  pcs<-prcomp(as.matrix(dat1[,indexs]),scale. = T,center = T)
-  n=8
-  km<-kmeans(pcs$x,n)
-  cols<-colors()
-  cols<-sample(cols,size = n,replace = F)
-  
-  for(i in c(1:3)){
-    j=1;
-    plot(pcs$x[,j],pcs$x[,i+1],xlab=paste("PC",j,sep=""),ylab=paste("PC",i+1,sep=""),col=cols[km$cluster],main="droplet-4tissues",pch=20,cex=0.5)
-    points(pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),i+1],
-           col=cols[km$cluster[grep(knowngenes,dat1$gene,ignore.case = T)]],
-           pch=20,cex=3)
-    points(pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),i+1],col="black",
-           pch=1,cex=3)
-    # points(pcs$x[grep("Fbln2",dat$gene,ignore.case = T),j],pcs$x[grep("Fbln2",dat$gene,ignore.case = T),i+1],
-    #        col=cols[km$cluster[grep("Fbln2",dat$gene,ignore.case = T)]],pch=20,cex=3)
-    text(pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),i+1],col="blue",
-         dat1$gene[grep(knowngenes,dat1$gene,ignore.case = T)],cex = 0.5)
-    points(pcs$x[grep(risks,dat1$gene,ignore.case = T),j],pcs$x[grep(risks,dat1$gene,ignore.case = T),i+1],col="black",
-           pch=1,cex=3)
-    text(pcs$x[grep(risks,dat1$gene,ignore.case = T),j],pcs$x[grep(risks,dat1$gene,ignore.case = T),i+1],col="darkgreen",
-         dat1$gene[grep(risks,dat1$gene,ignore.case = T)],cex = 0.5)
-  }
-  ## K-means
-  
-  dev.off()
-  
-  dat<-read.csv("~/terra/Resources/GeneExpression/single_cell/TabulaMuris/FACS_tissues_genes.summary.csv",
-                header=1,stringsAsFactors = F,comment.char = "",check.names = F)
-  dat<-dat[which(dat$gene%in%allg$V4),]
-  ss<-unlist(lapply(1:dim(dat)[1],FUN=function(i){sum(dat[i,2:dim(dat)[2]])}))
-  dat<-dat[which(ss>0),]
-  indexs<-2:dim(dat)[2]
-  indexs<-intersect(grep("heart|lung|aorta",names(dat),ignore.case = T),grep("strom|endothelial",names(dat),ignore.case = T))
-  pcs<-prcomp(as.matrix(dat[,indexs]),scale. = T,center = T)
-  n=6
-  km<-kmeans(pcs$x,n)
-  xx<-pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),c(26,30)]
-  yy<-pcs$x[,c(26,30)]
-  distmat<-as.matrix(pdist(xx,yy,indices.A = 1:dim(xx)[1],indices.B = 1:dim(yy)[1]))
-  dscore<-unlist(lapply(1:dim(distmat)[2],FUN = function(i){min(distmat[,i]) }))
-  table(km$cluster[grep(knowngenes,dat$gene,ignore.case = T)])
-  
-  for(c in 1:n){
-    print(c)
-    print(dat$gene[intersect(which(km$cluster==c),grep(knowngenes,dat$gene,ignore.case = T))])
-  }
-  table(km$cluster)
-  
-  cols<-colors()
-  cols<-sample(cols,size = n,replace = F)
-  for(i in c(1:3)){
-    j=1;
-    plot(pcs$x[,j],pcs$x[,i+1],xlab=paste("PC",j,sep=""),ylab=paste("PC",i+1,sep=""),col=cols[km$cluster],main="FACS-4tissues",
-         pch=20,cex=0.5)
-    points(pcs$x[grep(knowngenes,dat$gene,ignore.case = T),j],
-           pcs$x[grep(knowngenes,dat$gene,ignore.case = T),i+1],
-           col=cols[km$cluster[grep(knowngenes,dat$gene,ignore.case = T)]],
-           pch=20,cex=3)
-    
-    points(pcs$x[grep(risks,dat$gene,ignore.case = T),j],
-           pcs$x[grep(risks,dat$gene,ignore.case = T),i+1],
-           col=cols[km$cluster[grep(risks,dat$gene,ignore.case = T)]],
-           pch=20,cex=3)
-    
-    #points(pcs$x[grep("Fbln2",dat$gene,ignore.case = T),j],pcs$x[grep("Fbln2",dat$gene,ignore.case = T),i+1],
-    #       col=cols[km$cluster[grep("Fbln2",dat$gene,ignore.case = T)]],pch=20,cex=3)
-    # points(pcs$x[grep(knowngenes,dat$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat$gene,ignore.case = T),i+1],col="black",
-    #       pch=1,cex=3)
-    text(pcs$x[grep(knowngenes,dat$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat$gene,ignore.case = T),i+1],col="green",
-         dat$gene[grep(knowngenes,dat$gene,ignore.case = T)],cex = 1)
-    # points(pcs$x[grep(risks,dat$gene,ignore.case = T),j],pcs$x[grep(risks,dat$gene,ignore.case = T),i+1],col="black",
-    #         pch=1,cex=3)
-    text(pcs$x[grep(risks,dat$gene,ignore.case = T),j],pcs$x[grep(risks,dat$gene,ignore.case = T),i+1],col="green",
-         dat$gene[grep(risks,dat$gene,ignore.case = T)],cex = 1)
-    points(pcs$x[,j],pcs$x[,i+1],xlab=paste("PC",j,sep=""),ylab=paste("PC",i+1,sep=""),col=cols[as.integer(dscore/0.5)],main="FACS-4tissues",pch=20,cex=0.5)
-  }
-  
-  dev.off()
-  
-  n=4
-  km<-kmeans(xx,n)
-  
-  table(km$cluster[grep(knowngenes,testgenes,ignore.case = T)])
-  
-  for(c in 1:n){
-    print(c)
-    print(testgenes[intersect(which(km$cluster==c),grep(knowngenes,testgenes,ignore.case = T))])
-  }
-  table(km$cluster)
-  
-  
-  
-  
-  for(i in c(1:3)){
-    j=1;
-    plot(xx[,j],xx[,i+1],xlab=paste("PC",j,sep=""),ylab=paste("PC",i+1,sep=""),col=cols[km$cluster],main="FACS-4tissues",
-         pch=20,cex=0.5)
-    # points(proj[,j],proj[,i+1],xlab=paste("PC",j,sep=""),ylab=paste("PC",i+1,sep=""),col="gray",
-    #      pch=20,cex=0.5)
-    points(xx[grep(knowngenes,testgenes,ignore.case = T),j],
-           xx[grep(knowngenes,testgenes,ignore.case = T),i+1],
-           col=cols[km$cluster[grep(knowngenes,testgenes,ignore.case = T)]],
-           pch=20,cex=5)
-    
-    points(xx[grep(risks,testgenes,ignore.case = T),j],
-           xx[grep(risks,testgenes,ignore.case = T),i+1],
-           col=cols[km$cluster[grep(risks,testgenes,ignore.case = T)]],
-           pch=20,cex=5)
-    
-    #points(pcs$x[grep("Fbln2",dat$gene,ignore.case = T),j],pcs$x[grep("Fbln2",dat$gene,ignore.case = T),i+1],
-    #       col=cols[km$cluster[grep("Fbln2",dat$gene,ignore.case = T)]],pch=20,cex=3)
-    #points(pcs$x[grep(knowngenes,dat$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat$gene,ignore.case = T),i+1],col="black",
-    #        pch=1,cex=3)
-    text(xx[grep(knowngenes,testgenes,ignore.case = T),j],xx[grep(knowngenes,testgenes,ignore.case = T),i+1],col="blue",
-         testgenes[grep(knowngenes,testgenes,ignore.case = T)],cex = 1)
-    #points(pcs$x[grep(risks,dat$gene,ignore.case = T),j],pcs$x[grep(risks,dat$gene,ignore.case = T),i+1],col="black",
-    #       pch=1,cex=3)
-    text(xx[grep(risks,testgenes,ignore.case = T),j],xx[grep(risks,testgenes,ignore.case = T),i+1],col="darkgreen",
-         testgenes[grep(risks,testgenes,ignore.case = T)],cex = 1)
-    # legend("topright",legend = unique(km$cluster),fill=cols[unique(km$cluster)])
-    
-  }
-  
-  dev.off()
-  
-  write.csv(dat_t,file="~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/located_relevantcluster.txt",row.names = F)
-  dat1<-read.csv("~/Dropbox (CGC)/PAH/US_UK/result/geneExpression/",
-                 header=1,stringsAsFactors = F,comment.char = "",check.names = F)
-  dat1<-dat1[unique(c(which(dat1$gene%in%c(negatives)),grep(risks,dat1$gene,ignore.case = T),grep(knowngenes,dat1$gene,ignore.case = T))),]
-  ss<-unlist(lapply(1:dim(dat1)[1],FUN=function(i){sum(dat1[i,2:dim(dat1)[2]])}))
-  dat1<-dat1[which(ss>0),]
-  indexs<-2:dim(dat1)[2]
-  #indexs<-grep("heart|lung|Trachea|aorta",names(dat1),ignore.case = T)
-  pcs<-prcomp(as.matrix(dat1[,indexs]),scale. = T,center = T)
-  n=8
-  km<-kmeans(pcs$x,n)
-  cols<-colors()
-  cols<-sample(cols,size = n,replace = F)
-  
-  for(i in c(1:3)){
-    j=1;
-    plot(pcs$x[,j],pcs$x[,i+1],xlab=paste("PC",j,sep=""),ylab=paste("PC",i+1,sep=""),col=cols[km$cluster],main="droplet-4tissues",pch=20,cex=0.5)
-    points(pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),i+1],
-           col=cols[km$cluster[grep(knowngenes,dat1$gene,ignore.case = T)]],
-           pch=20,cex=3)
-    points(pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),i+1],col="black",
-           pch=1,cex=3)
-    # points(pcs$x[grep("Fbln2",dat$gene,ignore.case = T),j],pcs$x[grep("Fbln2",dat$gene,ignore.case = T),i+1],
-    #        col=cols[km$cluster[grep("Fbln2",dat$gene,ignore.case = T)]],pch=20,cex=3)
-    text(pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),j],pcs$x[grep(knowngenes,dat1$gene,ignore.case = T),i+1],col="blue",
-         dat1$gene[grep(knowngenes,dat1$gene,ignore.case = T)],cex = 0.5)
-    points(pcs$x[grep(risks,dat1$gene,ignore.case = T),j],pcs$x[grep(risks,dat1$gene,ignore.case = T),i+1],col="black",
-           pch=1,cex=3)
-    text(pcs$x[grep(risks,dat1$gene,ignore.case = T),j],pcs$x[grep(risks,dat1$gene,ignore.case = T),i+1],col="darkgreen",
-         dat1$gene[grep(risks,dat1$gene,ignore.case = T)],cex = 0.5)
-  }
-  ## K-means
-  
-  
-  
-}
