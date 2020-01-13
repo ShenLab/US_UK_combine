@@ -1,0 +1,121 @@
+,Cell,Count
+107,Skin:leukocyte,15
+39,Kidney:leukocyte,16
+90,Marrow:pre-natural killer cell,22
+59,Lung:ciliated columnar cell of tracheobronchial tree,25
+74,Marrow:basophil,25
+92,Marrow:regulatory T cell,27
+28,Heart:,28
+18,Diaphragm:macrophage,31
+112,Thymus:DN1 thymic pro-T cell,32
+51,Limb_Muscle:T cell,35
+62,Lung:leukocyte,35
+81,Marrow:immature natural killer cell,36
+40,Kidney:macrophage,37
+66,Lung:natural killer cell,37
+82,Marrow:immature NK T cell,37
+56,Liver:natural killer cell,39
+10,Brain_Non-Myeloid:Bergmann glial cell,40
+57,Lung:,40
+114,Thymus:leukocyte,40
+52,Liver:B cell,41
+35,Heart:smooth muscle cell,42
+73,Marrow:B cell,44
+48,Limb_Muscle:macrophage,45
+70,Mammary_Gland:endothelial cell,47
+110,Spleen:macrophage,48
+86,Marrow:mature natural killer cell,49
+102,Pancreas:pancreatic stellate cell,49
+68,Lung:T cell,53
+108,Skin:stem cell of epidermis,53
+96,Pancreas:leukocyte,54
+87,Marrow:megakaryocyte-erythroid progenitor cell,55
+58,Lung:B cell,57
+4,Aorta:professional antigen presenting cell,59
+43,Large_Intestine:enteroendocrine cell,59
+83,Marrow:immature T cell,60
+7,Brain_Myeloid:macrophage,61
+55,Liver:Kupffer cell,61
+41,Large_Intestine:Brush cell of epithelium proper of large intestine,63
+64,Lung:monocyte,65
+95,Pancreas:endothelial cell,66
+3,Aorta:fibroblast,70
+46,Limb_Muscle:B cell,71
+101,Pancreas:pancreatic PP cell,73
+16,Diaphragm:endothelial cell,78
+17,Diaphragm:lymphocyte,81
+65,Lung:myeloid cell,85
+60,Lung:classical monocyte,90
+2,Aorta:erythrocyte,91
+26,Fat:natural killer cell,95
+21,Fat:,102
+61,Lung:epithelial cell of lung,113
+118,Trachea:endothelial cell,113
+38,Kidney:kidney collecting duct epithelial cell,121
+36,Kidney:endothelial cell,126
+29,Heart:cardiac muscle cell,133
+77,Marrow:granulocyte monocyte progenitor cell,134
+94,Marrow:Slamf1-positive multipotent progenitor cell,134
+99,Pancreas:pancreatic D cell,140
+47,Limb_Muscle:endothelial cell,141
+11,Brain_Non-Myeloid:brain pericyte,156
+75,Marrow:common lymphoid progenitor,156
+100,Pancreas:pancreatic ductal cell,161
+30,Heart:endocardial cell,165
+85,Marrow:macrophage,173
+34,Heart:myofibroblast cell,178
+53,Liver:endothelial cell of hepatic sinusoid,182
+98,Pancreas:pancreatic acinar cell,182
+1,Aorta:endothelial cell,188
+119,Trachea:epithelial cell,201
+15,Brain_Non-Myeloid:oligodendrocyte precursor cell,203
+117,Trachea:blood cell,206
+37,Kidney:epithelial cell of proximal tubule,219
+78,Marrow:granulocytopoietic cell,221
+19,Diaphragm:mesenchymal stem cell,241
+49,Limb_Muscle:mesenchymal stem cell,258
+79,Marrow:hematopoietic precursor cell,265
+88,Marrow:monocyte,266
+105,Skin:epidermal cell,276
+13,Brain_Non-Myeloid:neuron,281
+84,Marrow:late pro-B cell,306
+116,Tongue:keratinocyte,330
+80,Marrow:immature B cell,344
+111,Spleen:T cell,352
+27,Fat:T cell,353
+97,Pancreas:pancreatic A cell,390
+54,Liver:hepatocyte,391
+67,Lung:stromal cell,423
+9,Brain_Non-Myeloid:astrocyte,432
+20,Diaphragm:skeletal muscle satellite stem cell,439
+72,Mammary_Gland:stromal cell,440
+103,Pancreas:type B pancreatic cell,449
+91,Marrow:precursor B cell,517
+22,Fat:B cell,519
+33,Heart:leukocyte,523
+50,Limb_Muscle:skeletal muscle satellite cell,540
+104,Skin:basal cell of epidermis,562
+71,Mammary_Gland:luminal epithelial cell of mammary gland,578
+23,Fat:endothelial cell,668
+6,Bladder:bladder urothelial cell,683
+89,Marrow:naive B cell,692
+63,Lung:lung endothelial cell,693
+5,Bladder:bladder cell,695
+93,Marrow:Slamf1-negative multipotent progenitor cell,713
+12,Brain_Non-Myeloid:endothelial cell,715
+76,Marrow:granulocyte,761
+120,Trachea:mesenchymal cell,830
+45,Large_Intestine:large intestine goblet cell,833
+42,Large_Intestine:enterocyte of epithelium of large intestine,964
+115,Tongue:basal cell of epidermis,1086
+25,Fat:myeloid cell,1123
+31,Heart:endothelial cell,1177
+113,Thymus:immature T cell,1277
+109,Spleen:B cell,1297
+69,Mammary_Gland:basal cell,1340
+106,Skin:keratinocyte stem cell,1404
+14,Brain_Non-Myeloid:oligodendrocyte,1574
+44,Large_Intestine:epithelial cell of large intestine,2019
+24,Fat:mesenchymal stem cell of adipose,2107
+32,Heart:fibroblast,2119
+8,Brain_Myeloid:microglial cell,4394
