@@ -9,9 +9,7 @@ allg<-read.table("data/MouseHumanIDmapper.txt",
 knowngenes<-"SOX17|BMPR2|TBX4|KCNK3|ATP13A3|GDF2|AQP1$|KLK1$|GGCX|ACVRL1|^KDR$|^ENG$|EIF2AK4|SMAD4|^CAV1$|NOTCH1$|SMAD4|SMAD9"
 confirmgenes<-"SOX17|BMPR2|TBX4|KCNK3|ACVRL1|^ENG$|EIF2AK4|^CAV1$|NOTCH1$|SMAD4|SMAD9"
 
-
-#risks<-"col6a5|fbln2|pdgfd|hn1l|jpt2|^kdr$" #chd9|mrrf|ccdc28A|vps51|mmp10|chd9|CHKB|myf5|irak4|npffr2|myo5b|ipo4|hn1l|jpt2"
-risks<-"fbln2|pdgfd|^kdr$" #chd9|mrrf|ccdc28A|vps51|mmp10|chd9|CHKB|myf5|irak4|npffr2|myo5b|ipo4|hn1l|jpt2"
+risks<-"fbln2|pdgfd|^kdr$" 
 
 all_negatives<-allg[intersect(which(!allg$HumanGene%in%c(knowngenes,risks)==T),
                               grep(paste(knowngenes,risks,sep="|"),allg$HumanGene,ignore.case = T,invert = T)),"MouseGene"]
@@ -21,10 +19,6 @@ all_negatives<-allg[intersect(which(!allg$HumanGene%in%c(knowngenes,risks)==T),
 dat_all<-read.csv("data/FACS_tissues_genes.summary.csv",
               header=1,stringsAsFactors = F,comment.char = "",check.names = F)
 dat_all<-dat_all[which(dat_all$gene%in%allg$MouseGene),]
-#dat_all<-dat_all[grep(".y$",names(dat_all),invert = T),]
-#dat<-dat[which(dat$gene%in%allg$V4),]
-#ss<-unlist(lapply(1:dim(dat_all)[1],FUN=function(i){sum(dat_all[i,2:dim(dat_all)[2]])}))
-#dat_all<-dat_all[which(ss>0),]
 
 all_negatives<-all_negatives[which(all_negatives%in%dat_all$gene)]
 negatives<-sample(all_negatives,100,replace = F)
@@ -50,13 +44,12 @@ cells<-gsub("_"," ",cells)
 cells<-gsub("Lung lung","Lung",cells)
 cells<-gsub("of lung","",cells)
 
-#km<-kmeans(rbind(pcs$x,proj),n)
 matri<-as.matrix(dat[,indexs])
 row.names(matri)<-dat$gene
 colnames(matri)<-cells
 matri<-matri[c(grep(confirmgenes,dat$gene,ignore.case = T),
            grep(risks,dat$gene,ignore.case = T),which(dat$gene%in%c(negatives))),]
-#colnames(matri)<-gsub("rate_| cell","",colnames(matri))
+
 pdf("result/Heatmap.pdf",width=10,height=10)
 par(mar=c(2,5,15,2))
 library(RColorBrewer)
@@ -151,38 +144,18 @@ text((dim(pcs$rotation)[1]-4):dim(pcs$rotation)[1],pcs$rotation[(dim(pcs$rotatio
 text(4:(dim(pcs$rotation)[1]-5),pcs$rotation[4:(dim(pcs$rotation)[1]-5),i], cells[4:(dim(pcs$rotation)[1]-5)],cex=1.2,pos=3,srt=0,pch=20)
 
 text(1:3,pcs$rotation[1:3,i], cells[1:3],cex=1.2,pos=1,srt=0,pch=20)
-par(mar=c(4.5,4.5,1,1))
-## density
-plot(density(pcs$x[,i],from = -5,to=5),main="",xlab="",col="gray",ylim=c(0,0.9),ylab="",yaxt='n',xaxt='n')
-title(xlab="PC2",ylab="Density",line=2.5,cex.lab=cex.tex)
-axis(1,at=seq(-4,4,2),labels = seq(-4,4,2),cex.axis=cex.tex)
-axis(2,at=seq(0,0.8,0.2),labels = seq(0,0.8,0.2),cex.axis=cex.tex)
-lines(density(pcs$x[grep(confirmgenes,dat$gene,ignore.case = T),i],from = -5,to=5),col=pcols[1])
-lines(density(pcs$x[grep(risks,dat$gene,ignore.case = T),i],from = -5,to=5),col=pcols[2])
-# lines(density(pcs$x[which(dat$gene%in%denovo_mouse),i]),col="orange")
-#lines(density(pcs$x[which(dat$gene%in%negatives),i],from = -5,to=5),col="black")
-legend("topleft",legend = cats[c(1,2,4)],cex=cex.tex,
-       fill = pcols[c(1,2,4)],bty='n')
 
+par(mar=c(4,4,1,1))
+hist(mat$rank[c(grep(confirmgenes,mat$gene,ignore.case = T))],col=rgb(1,0,0,alpha = 0.5),breaks= seq(0,14000,1000),
+     freq = T,main="",xlab="",ylab="",xaxt='n',yaxt='n')
+hist(mat$rank[c(grep(risks,mat$gene,ignore.case = T))],breaks =  seq(0,14000,1000),
+     col=rgb(0,206/256,230/256,alpha=0.5),add=T,freq=T)
+axis(1,at = seq(0,14000,1000),labels = paste(c(0:14),"k",sep=""),cex.axis=1.5,las=2)
+axis(2,at = seq(0,6,1),labels = seq(0,6,1),cex.axis=1.5,las=2)
+title(xlab="", ylab="Frequency",cex.lab=1.5,line=2.5)
+title(xlab="PC2 rank", cex.lab=1.5,line=3)
+legend("topright",legend = cats[1:2],fill=c(rgb(1,0,0,alpha = 0.5),rgb(0,206/256,230/256,alpha=0.5)),cex=1.5,bty='n')
 
-
-#,grep(risks,mat$gene,ignore.case = T)
-hist(mat$rank[c(grep(confirmgenes,mat$gene,ignore.case = T))],
-     xlab="Rank of known risk genes",main="Rank distribution",ylim=c(0,6),cex.lab=cex.tex,cex.axis=cex.tex,
-     breaks = c(0,1000,2000,4000,6000,8000,10000,12000,13907),freq = T)
-
-par(mar=c(1,5,1,1))
-xx<-mat$rank[c(grep(confirmgenes,mat$gene,ignore.case = T),grep(risks,mat$gene,ignore.case = T))]
-boxplot(mat$rank,yaxt='n')
-axis(2,seq(0,14000,2000),seq(0,14000,2000),cex.axis=cex.tex)
-title(ylab="Rank of known and candidate risk genes",cex.lab=cex.tex)
-xx<-mat$rank[c(grep(confirmgenes,mat$gene,ignore.case = T))]
-points(c(1.015,0.985,1,0.97,1.025,1,1,rep(1,4)), sort(xx),pch=20,cex=1.2,col=pcols[1])
-xx<-mat$rank[c(grep(risks,mat$gene,ignore.case = T))]
-#points(c(0.94,1,0.94,1,1,1), sort(xx),pch=15,cex=1,col=pcols[2])
-points(c(0.96,0.985,0.96), sort(xx),pch=15,cex=1,col=pcols[2])
-legend("topleft",legend = cats[1:2],
-       col= pcols[1:2],pch=c(20,15),bty='n',cex=cex.tex)
 
 dev.off()
 
